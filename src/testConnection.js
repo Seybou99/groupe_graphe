@@ -1,4 +1,4 @@
-const driver = require('./config/db');
+import driver from './config/db.js';
 
 async function testConnection() {
   const session = driver.session();

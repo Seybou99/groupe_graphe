@@ -1,5 +1,8 @@
-const neo4j = require('neo4j-driver');
-require('dotenv').config(); // Charger les variables d'environnement
+import neo4j from 'neo4j-driver';
+import dotenv from 'dotenv';
+
+// Charger les variables d'environnement
+dotenv.config();
 
 // Logs pour vérifier si les variables sont chargées
 console.log('NEO4J_URI:', process.env.NEO4J_URI);
@@ -11,4 +14,4 @@ const driver = neo4j.driver(
   neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
 );
 
-module.exports = driver;
+export default driver;

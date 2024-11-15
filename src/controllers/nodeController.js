@@ -1,7 +1,7 @@
-const driver = require('../config/db');
+import driver from '../config/db.js';
 
 // Créer un noeud
-const createNode = async (req, res) => {
+export const createNode = async (req, res) => {
   const session = driver.session();
   const { id, name, type } = req.body;
 
@@ -25,7 +25,7 @@ const createNode = async (req, res) => {
 };
 
 // Récupérer tous les noeuds
-const getNodes = async (req, res) => {
+export const getNodes = async (req, res) => {
   const session = driver.session();
 
   try {
@@ -45,7 +45,7 @@ const getNodes = async (req, res) => {
 };
 
 // Mettre à jour un noeud
-const updateNode = async (req, res) => {
+export const updateNode = async (req, res) => {
   const session = driver.session();
   const { id } = req.params;
   const { name, type } = req.body;
@@ -75,7 +75,7 @@ const updateNode = async (req, res) => {
 };
 
 // Supprimer un noeud
-const deleteNode = async (req, res) => {
+export const deleteNode = async (req, res) => {
   const session = driver.session();
   const { id } = req.params;
 
@@ -100,11 +100,4 @@ const deleteNode = async (req, res) => {
   } finally {
     await session.close();
   }
-};
-
-module.exports = {
-  createNode,
-  getNodes,
-  updateNode,
-  deleteNode,
 };
