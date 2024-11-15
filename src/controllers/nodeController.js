@@ -1,17 +1,10 @@
-import driver from '../config/db.js';
+import { createNode as createNodeService, getNodes as getNodesService, updateNode as updateNodeService, deleteNode as deleteNodeService } from '../service/nodeService.js';
 
 // Créer un noeud
 export const createNode = async (req, res) => {
-  const session = driver.session();
   const { id, name, type } = req.body;
-
   try {
-    const result = await session.run(
-      'CREATE (n:Node {id: $id, name: $name, type: $type}) RETURN n',
-      { id, name, type }
-    );
-    const node = result.records[0].get('n').properties;
-
+    const node = await createNodeService(id, name, type);
     res.status(201).json({
       message: 'Node created successfully',
       data: node,
@@ -19,19 +12,13 @@ export const createNode = async (req, res) => {
   } catch (error) {
     console.error('Error creating node:', error);
     res.status(500).json({ message: 'Error creating node', error: error.message });
-  } finally {
-    await session.close();
   }
 };
 
 // Récupérer tous les noeuds
 export const getNodes = async (req, res) => {
-  const session = driver.session();
-
   try {
-    const result = await session.run('MATCH (n:Node) RETURN n');
-    const nodes = result.records.map(record => record.get('n').properties);
-
+    const nodes = await getNodesService();
     res.status(200).json({
       message: 'Nodes fetched successfully',
       data: nodes,
@@ -39,29 +26,18 @@ export const getNodes = async (req, res) => {
   } catch (error) {
     console.error('Error fetching nodes:', error);
     res.status(500).json({ message: 'Error fetching nodes', error: error.message });
-  } finally {
-    await session.close();
   }
 };
 
 // Mettre à jour un noeud
 export const updateNode = async (req, res) => {
-  const session = driver.session();
   const { id } = req.params;
   const { name, type } = req.body;
-
   try {
-    const result = await session.run(
-      'MATCH (n:Node {id: $id}) SET n.name = $name, n.type = $type RETURN n',
-      { id, name, type }
-    );
-
-    if (result.records.length === 0) {
+    const updatedNode = await updateNodeService(id, name, type);
+    if (!updatedNode) {
       return res.status(404).json({ message: `Node with ID ${id} not found` });
     }
-
-    const updatedNode = result.records[0].get('n').properties;
-
     res.status(200).json({
       message: `Node with ID ${id} updated successfully`,
       data: updatedNode,
@@ -69,35 +45,22 @@ export const updateNode = async (req, res) => {
   } catch (error) {
     console.error('Error updating node:', error);
     res.status(500).json({ message: 'Error updating node', error: error.message });
-  } finally {
-    await session.close();
   }
 };
 
 // Supprimer un noeud
 export const deleteNode = async (req, res) => {
-  const session = driver.session();
   const { id } = req.params;
-
   try {
-    const result = await session.run(
-      'MATCH (n:Node {id: $id}) DELETE n RETURN COUNT(n) AS deletedCount',
-      { id }
-    );
-
-    const deletedCount = result.records[0].get('deletedCount').toNumber();
-
+    const deletedCount = await deleteNodeService(id);
     if (deletedCount === 0) {
       return res.status(404).json({ message: `Node with ID ${id} not found` });
     }
-
     res.status(200).json({
       message: `Node with ID ${id} deleted successfully`,
     });
   } catch (error) {
     console.error('Error deleting node:', error);
     res.status(500).json({ message: 'Error deleting node', error: error.message });
-  } finally {
-    await session.close();
   }
 };
